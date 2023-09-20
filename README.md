@@ -146,6 +146,8 @@ series = {MM '20}
 }
 ```
 
+python inference.py --checkpoint_path checkpoints/wav2lip.pth --face input/1.mp4 --audio input/1.wav
+
 
 Acknowledgments
 ----------
