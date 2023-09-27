@@ -1,8 +1,11 @@
 from celery import Celery
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from tasks import generate_video
+import time
 
 app = Flask(__name__)
+CORS(app)
 
 celery = Celery('tasks', broker='redis://localhost:6379/0', result_backend='redis://localhost:6379/0')
 celery.conf.broker_connection_retry_on_startup = True
@@ -44,6 +47,7 @@ def progress(task_id):
         status = task.state
     return jsonify({'status': status})
 
+
     # if task.state == 'PENDING':
     #     response = {'status': 'waiting', 'progress': 0}
     # elif task.state == 'STARTED':
@@ -55,6 +59,31 @@ def progress(task_id):
 
     # return jsonify(response)
 
+@app.route('/uploadface', methods=['POST'])
+def uploadface():
+    files = request.files.getlist('file')
+    timestamp = int(round(time.time() * 1000))
+    print(timestamp)
+    print(files)
+    for file in files:
+        extension = file.filename.split('.')[-1]
+        filename = str(timestamp) + "." + extension
+        file.save("upload/face/" + filename)
+    
+    return filename
+
+@app.route('/uploadvoice', methods=['POST'])
+def uploadvoice():
+    files = request.files.getlist('file')
+    timestamp = int(round(time.time() * 1000))
+    print(timestamp)
+    print(files)
+    for file in files:
+        extension = file.filename.split('.')[-1]
+        filename = str(timestamp) + "." + extension
+        file.save("upload/voice/" + filename)
+    
+    return filename
 
 
 def get_task_count():
