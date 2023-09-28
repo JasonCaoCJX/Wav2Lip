@@ -1,5 +1,5 @@
 from celery import Celery
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from tasks import generate_video
 import time
@@ -24,15 +24,20 @@ celery.conf.worker_concurrency = 2
     
 #     return result.id
 
-@app.route('/generate', methods=['GET'])
+@app.route('/generate', methods=['POST'])
 def generate():
-    video_path = 'input/2.mp4'
-    audio_path = 'input/1.wav'
+    # video_path = 'input/2.mp4'
+    # audio_path = 'input/1.wav'
+    data = request.get_json()
+    face = data.get('face')
+    voice = data.get('voice')
     
     # result = generate_video.delay(video_path, audio_path, 'checkpoints/wav2lip.pth')
     task = generate_video.delay()
-    active, total = get_task_count()
-    return {"id": task.id, "work": active, "total": total}
+    # active, total = get_task_count()
+    active = 1
+    total = 2
+    return {"id": task.id, "work": active, "total": total, "face": face, "voice": voice}
 
 @app.route('/progress/<task_id>', methods=['GET'])
 def progress(task_id):
@@ -85,6 +90,16 @@ def uploadvoice():
     
     return filename
 
+@app.route('/getface/<filename>', methods=['GET'])
+def getface(filename):
+    print(filename)
+    return send_from_directory("upload/face/", filename)
+
+@app.route('/getvoice/<filename>', methods=['GET'])
+def getvoice(filename):
+    print(filename)
+    return send_from_directory("upload/voice/", filename)
+    
 
 def get_task_count():
     i = celery.control.inspect()
