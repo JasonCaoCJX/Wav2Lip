@@ -11,13 +11,6 @@ celery.conf.worker_concurrency = 2
 def generate_video(video_path, audio_path, model):
     task_id = current_task.request.id
 
-    # total_time = 20
-    # for i in range(total_time):
-    #     time.sleep(1)
-    #     progress = (i + 1) / total_time * 100
-
-    #     print(f"Task progress: {progress}%")
-
     result_path = f'results/{task_id}.mp4'
     print(task_id, model)
     
